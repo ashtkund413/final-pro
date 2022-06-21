@@ -13,13 +13,18 @@ using System.Threading;
 namespace final_pro
 {
     public partial class gamescreen : UserControl
-    { List<ball> balls = new List<ball>();
+    {
+        List<ball> balls = new List<ball>();
+        List<bullet> bullets = new List<bullet>();
         player1 player;
+        public int bullettimer = 5;
         public int astroid = 10;
         Random randGen = new Random();
-        
+        int health1 = 3;
+        int score1 = 0;
 
-        public static Boolean leftArrowDown, rightArrowDown;
+
+        public static Boolean leftArrowDown, rightArrowDown, upArrowDown;
         public int playerWidth;
         public gamescreen()
         {
@@ -29,9 +34,9 @@ namespace final_pro
 
         public void OnStart()
         {
-            leftArrowDown = rightArrowDown = false;
+            leftArrowDown = rightArrowDown = upArrowDown = false;
 
-            
+
             playerWidth = 80;
             int playerHeight = 20;
             int playerX = ((this.Width / 2) - (playerWidth / 2));
@@ -49,6 +54,9 @@ namespace final_pro
                 case Keys.Right:
                     rightArrowDown = false;
                     break;
+                case Keys.Up:
+                    upArrowDown = false;
+                    break;
             }
         }
 
@@ -62,21 +70,29 @@ namespace final_pro
                 case Keys.Right:
                     rightArrowDown = true;
                     break;
+                case Keys.Up:
+                    upArrowDown = true;
+                    break;
             }
         }
+
+      
+
         private void gametimer_Tick(object sender, EventArgs e)
         {
-           
+            health.Text = $" {health1}";
+            score.Text = $"{score1}";
+            bullettimer--;
             astroid--;
             if (astroid == 0)
             {
-                int x = randGen.Next(0, 480);
+                int x = randGen.Next(0, 400);
                 balls.Add(new ball(x, 1));
-                
+
 
                 astroid = 50;
             }
-            foreach(ball b in balls )
+            foreach (ball b in balls)
             {
                 b.Move();
             }
@@ -84,10 +100,27 @@ namespace final_pro
             foreach (ball b in balls)
             {
                 if (b.BottomCollision(this))
-                {
+                { 
                     balls.Remove(b);
+                    health1--;
                     break;
                 }
+                //if (b.Collision( this))
+                //{
+                //    balls.Remove((ball)b);
+                //    break;
+                //}
+            }
+            foreach (bullet b in bullets)
+            {
+                b.Move();
+            }
+
+
+            if (upArrowDown && bullettimer < 0)
+            {
+                bullets.Add(new bullet(player.x + 30, player.y));
+                bullettimer = 10;
             }
 
             if (leftArrowDown && player.x > 0)
@@ -99,7 +132,39 @@ namespace final_pro
                 player.Move("right");
             }
 
+            //foreach loop that looks at each bullet in your list
+            //foreach loop that looks at each ball(asteroid in your list)
+            //if (ball.Collision(bullet)
+            // remove ball from list
+            // remove bullet from list
+            //return
+
+            foreach (bullet bull in bullets)
+            {
+                foreach (ball b in balls)
+                {
+                    if (b.Collision(bull))
+                    {
+                        balls.Remove(b);
+                        bullets.Remove(bull);
+                        score1++;
+                        return;
+                    }
+                }
+               
+            }
+            if(health1 == 0)
+            {
+                gametimer.Enabled = false;
+                Form form = this.FindForm();
+                mainmenu go = new mainmenu();
+                form.Controls.Add(go);
+                form.Controls.Remove(this);
+            }
             Refresh();
+
+
+
         }
 
 
@@ -108,14 +173,18 @@ namespace final_pro
         {
             e.Graphics.FillRectangle(Brushes.Blue, player.x, player.y, player.width, player.height);
 
+            foreach (bullet b in bullets)
+            {
+                e.Graphics.FillRectangle(Brushes.Blue, b.x, b.y, b.size, b.size);
+            }
             foreach (ball b in balls)
             {
-                e.Graphics.FillRectangle(Brushes.DarkRed, b.x, b.y, b.size,b.size);
-               
+                e.Graphics.FillRectangle(Brushes.DarkRed, b.x, b.y, b.size, b.size);
+
             }
 
         }
 
-        
+
     }
 }

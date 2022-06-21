@@ -23,6 +23,7 @@ namespace final_pro
             gamescreen gs = new gamescreen();
             form.Controls.Add(gs);
             form.Controls.Remove(this);
+            
         }
            
         

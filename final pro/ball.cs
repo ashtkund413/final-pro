@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Drawing;
 
 namespace final_pro
 {
@@ -21,9 +22,15 @@ namespace final_pro
            
 
         }
-        public void collision()
+        public bool Collision(bullet p )
         {
-        
+            Rectangle ballRec = new Rectangle(Convert.ToInt32(x), Convert.ToInt32(y), Convert.ToInt32(size), Convert.ToInt32(size));
+            Rectangle bulletRec = new Rectangle(p.x, p.y, p.width, p.height);
+            if (ballRec.IntersectsWith(bulletRec))
+            {
+                return true;
+            }
+            return false;
         }
         public bool BottomCollision(UserControl UC)
         {
